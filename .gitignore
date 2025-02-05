@@ -1,0 +1,9 @@
+#Don't add venv folder to remote repo
+venv/
+
+# Ignore environment files too 
+.env
+# Ignore Python cache
+__pycache__/
+
+alembic.ini
