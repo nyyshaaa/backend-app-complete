@@ -8,10 +8,13 @@ from passlib.context import CryptContext
 import secrets,getpass
 from dotenv import load_dotenv
 from sqlalchemy.dialects.postgresql import insert
+from src.db.connection import async_session
 
 pass_context=CryptContext(schemes=['bcrypt'])
 
 passwords=os.getenv("sample_passwords")
+
+
 
 def gen_password_hash(password:str):
     hashp=pass_context.hash(password)
@@ -35,7 +38,7 @@ frost_img_links=["https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSxcPxM
                  "https://i.pinimg.com/236x/a6/a0/e5/a6a0e5739dc308dc5442c98f7e2d56cf.jpg"]
 
 async def populate_schema():
-    async_session=app.state.session
+    # async_session=app.state.session
     if async_session is None:
         raise RuntimeError("app.state.async_session is not initialized!")
     async with async_session() as session:
@@ -45,7 +48,7 @@ async def populate_schema():
             await session.commit()
         except IntegrityError:
             print("Users already exist, skipping user insert.")
-            await session.rollback()
+            await session.rollback() #**is it necessary to use rollback , won't it automatically rollback
         result = await session.execute(select(User))
         users = result.scalars().all()
         
@@ -58,7 +61,7 @@ async def populate_schema():
         try:
            versions=[Versions(vname=v) for v in versions_list]
            session.add_all(versions)
-           await session.commit()
+           await session.commit() 
         except IntegrityError:
             print("Versions already exist, skipping version insert.")
             await session.rollback()
@@ -130,9 +133,9 @@ async def populate_schema():
        
 
         try:
-            orderitems_data = [orderitems(order_id=orders_data[0]["id"],seller_id=users[1]["id"],frost_id=frosties[1]["id"])
-                            ]+[orderitems(order_id=orders_data[1]["id"],seller_id=users[2]["id"],frost_id=frosties[2]["id"])
-                            ]+[orderitems(order_id=orders_data[2]["id"],seller_id=users[1]["id"],frost_id=frosties[4]["id"])]
+            orderitems_data = [orderitems(order_id=orders_data[0]["id"],frost_id=frosties[1]["id"])
+                            ]+[orderitems(order_id=orders_data[1]["id"],frost_id=frosties[2]["id"])
+                            ]+[orderitems(order_id=orders_data[2]["id"],frost_id=frosties[4]["id"])]
 
             session.add_all(orderitems_data)
             await session.commit()
