@@ -1,8 +1,9 @@
 from sqlalchemy.orm import declarative_base,relationship,DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy import Column,BigInteger,String,Text,TIMESTAMP,Integer,ForeignKey,Numeric,Date,Enum,DECIMAL,Boolean,UniqueConstraint
+from sqlalchemy import Column,BigInteger,String,Text,TIMESTAMP,Integer,ForeignKey,Numeric,Date,Enum,DECIMAL,Boolean,UniqueConstraint,text
 from datetime import datetime,timedelta
 import enum
+from .defaults import DEFAULT_PROFILE_IMG,DEFAULT_PRODUCT_IMG
 
 DecBase=declarative_base()
 
@@ -26,7 +27,7 @@ class User(DecBase):
     email=Column(String(length=255),nullable=False,unique=True)
     password_hash=Column(String(length=300),nullable=False,unique=True)
     about=Column(Text,nullable=True)
-    avatar=Column(Text,nullable=False) #stores image url
+    avatar=Column(Text,nullable=False,server_default=text(f"'{DEFAULT_PROFILE_IMG}'")) #stores image url
     created_at=Column(TIMESTAMP,nullable=False,default=datetime.now)
     deleted_at=Column(TIMESTAMP,nullable=True)
     updated_at=Column(TIMESTAMP,default=datetime.now,onupdate=datetime.now)
@@ -80,7 +81,7 @@ class Frosties(DecBase):
     user_id=Column(BigInteger,ForeignKey("users.id",ondelete="CASCADE")) 
     title=Column(String(600),nullable=False)
     description=Column(Text,nullable=True)
-    item_image=Column(Text,nullable=False)
+    item_image=Column(Text,nullable=False,server_default=text(f"'{DEFAULT_PRODUCT_IMG}'"))
     qty=Column(Integer,nullable=False,default=1)
     created_at=Column(TIMESTAMP,nullable=False,default=datetime.now)
     updated_at=Column(TIMESTAMP,default=datetime.now,onupdate=datetime.now)
@@ -115,7 +116,6 @@ class orderitems(DecBase):
     id=Column(BigInteger,primary_key=True,autoincrement=True)
     order_id=Column(BigInteger,ForeignKey("orders.id",ondelete="CASCADE"))
     frost_id=Column(BigInteger,ForeignKey("frosties.id",ondelete="SET NULL"))
-    seller_id=Column(BigInteger,ForeignKey("users.id",ondelete="CASCADE")) 
     quantity=Column(Integer,nullable=False,default=1)
     created_at=Column(TIMESTAMP,nullable=False,default=datetime.now)
 
