@@ -7,3 +7,6 @@ venv/
 __pycache__/
 
 alembic.ini
+
+discover.py
+dummy.py
