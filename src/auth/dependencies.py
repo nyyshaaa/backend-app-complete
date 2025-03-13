@@ -19,7 +19,7 @@ class TokenBearer(HTTPBearer):
 
         return decoded_token
     
-    def check_token_type(self,decoded_token):
+    def check_token_type(self,decoded_token): 
         raise NotImplementedError("To be implemented in child classes")
     
 
