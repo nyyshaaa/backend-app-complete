@@ -17,6 +17,10 @@ class UserService:
         stmt=select(User.id,User.email).where(User.email==email)
         res=await session.execute(stmt)
         return res.first()
+    
+    async def get_user_details(self,user_id:int,session:AsyncSession):   # is int correct ?
+        user=await session.get(User,user_id)  
+        return user
         
     
     async def create_user(self,user_data:UserCreateModel,session:AsyncSession):
