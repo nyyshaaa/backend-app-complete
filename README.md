@@ -23,3 +23,17 @@ Will use browser as HTTP client or POSTMAN for making http requests requests to 
 > python src/db/schema_seed.py
 
 > config.py file ---> 1. to read variables from .env(may contain credentials , passwords)
+
+### Users api endpoints decision
+
+```markdown
+1. Create - via signup endpoint in auth router
+2. Read - private view to owner and public for others
+3. Read , Update , Delete endpoints same type
+```
+
+> /users/{user_id} with access token in header ,user_id in path parameter also compatible with public view , user_id needs a check with user_id of token's user_id to provide the private or public view
+> /profile with access token not compatible with public view for read but straightforward,fits well with update and delete and no checks
+
+> /users/{user_id} for public view separately , but how will user user_id be passed in frontend ?
+> How will the token be retrieved ? users don't need to pass token anywhere , but for developmnet phase we need to pass token in headers? How it is really handled?
