@@ -1,3 +1,0 @@
-asyncpg- async db api async database driver(one way to access database in python)
-pip install pydantic-settings
-__init__ file in any folder will mark that folder as python package
