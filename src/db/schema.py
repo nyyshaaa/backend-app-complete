@@ -1,6 +1,6 @@
 from sqlalchemy.orm import declarative_base,relationship,DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy import Column,BigInteger,String,Text,TIMESTAMP,Integer,ForeignKey,Numeric,Date,Enum,DECIMAL,Boolean,UniqueConstraint,text
+from sqlalchemy import Column,BigInteger,String,Text,TIMESTAMP,Integer,ForeignKey,Numeric,Date,Enum,DECIMAL,Boolean,UniqueConstraint,text,Float
 from datetime import datetime,timedelta
 import enum
 from .defaults import DEFAULT_PROFILE_IMG,DEFAULT_PRODUCT_IMG
@@ -16,6 +16,10 @@ class orderstatus(enum.Enum):
     PENDING='pending'
     COMPLETED='completed'
     INPROGRESS='inprogress'
+    failed = "failed"
+    cancelled = "cancelled"
+    returned = "returned"
+    refunded = "refunded"
 
 #ORM will map database table to python classes and cols to class properties
 
@@ -86,11 +90,11 @@ class Frosties(DecBase):
     created_at=Column(TIMESTAMP,nullable=False,default=datetime.now)
     updated_at=Column(TIMESTAMP,default=datetime.now,onupdate=datetime.now)
     price=Column(Numeric(20,2),nullable=True)
+    deleted_at=Column(TIMESTAMP,nullable=True)
 
     __table_args__ = (
         UniqueConstraint("user_id","title",name="unique_user_title"),
     )
-    #**likes count
 
 class likes(DecBase):
     __tablename__='likes'
@@ -109,7 +113,14 @@ class orders(DecBase):
     buyer_id=Column(BigInteger,ForeignKey("users.id",ondelete="CASCADE")) 
     created_at=Column(TIMESTAMP,nullable=False,default=datetime.now)
     status=Column(Enum(orderstatus),default=orderstatus.PENDING,nullable=False)
-    #**payment key 
+    delivered_at = Column(TIMESTAMP, nullable=True)
+    amount=Column(Float,nullable=True) # column added later so for simplicity just keeping it null
+    payment_transaction_id=Column(String,nullable=True)
+    payment_status=Column(String,nullable=True)
+    refund_transaction_id=Column(String,nullable=True)
+    refund_status=Column(String,nullable=True)
+    idempotency_key=Column(String,unique=True,nullable=True)
+    
 
 class orderitems(DecBase):
     __tablename__='orderitems'
