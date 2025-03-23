@@ -24,16 +24,22 @@ Will use browser as HTTP client or POSTMAN for making http requests requests to 
 
 > config.py file ---> 1. to read variables from .env(may contain credentials , passwords)
 
-### Users api endpoints decision
+#### Orders Endpoints
 
-```markdown
-1. Create - via signup endpoint in auth router
-2. Read - private view to owner and public for others
-3. Read , Update , Delete endpoints same type
-```
+1. POST /orders
+2. GET /orders
+   Returns a list of orders for the authenticated user (with filters/pagination as needed)
+3. GET/orders/{order_id}
+   Returns full details of a specific order , including it's order items
+   4.PATCH /orders/{order_id}/cancel
+   Allows a user to cancel an order if it's still pending
+4. PATCH /orders/{ORDER_id}/return
+   Allows a user to initiate a return ,amount will be refunded.
 
-> /users/{user_id} with access token in header ,user_id in path parameter also compatible with public view , user_id needs a check with user_id of token's user_id to provide the private or public view
-> /profile with access token not compatible with public view for read but straightforward,fits well with update and delete and no checks
+#### Test mode stripe Integration
 
-> /users/{user_id} for public view separately , but how will user user_id be passed in frontend ?
-> How will the token be retrieved ? users don't need to pass token anywhere , but for developmnet phase we need to pass token in headers? How it is really handled?
+1. pip install stripe
+2. stripe lets you simulate creating real objects without the risk of affecting real transactions or moving actual money(test mode)
+3. Use stripe's secret key on server side to authenticate api calls to stripe , must be kept confidential as it has full access to account.
+4. Publishable key will be used on client side to tokenize credit card data before sending it to server
+5. Calling stripe API in test mode doesn't require card data as input
