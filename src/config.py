@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     JWT_SECRET:str
     JWT_ALGORITHM:str
     DB_SYNC_URL:str
+    STRIPE_TEST_SECRET_KEY:str
+    WEBHOOK_SECRET:str
     
     model_config=SettingsConfigDict(
         env_file=".env",

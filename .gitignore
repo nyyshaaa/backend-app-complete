@@ -6,5 +6,9 @@ venv/
 # Ignore Python cache
 __pycache__/
 
+alembic.ini
 
-alembic.ini 
+discover.py
+dummy.py
+=======
+
