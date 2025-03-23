@@ -6,4 +6,4 @@ venv/
 # Ignore Python cache
 __pycache__/
 
-alembic.ini
+alembic.ini 
