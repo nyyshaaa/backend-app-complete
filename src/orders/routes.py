@@ -293,7 +293,11 @@ async def update_payment_status(intent,session,success):
                 raise HTTPException(status_code=500, detail=str(e))
 
 # -----Webhook endpoint for payment updates-----
-@webhook_router.post("/stripe-webhook")
+# Create an endpoint in stripe dashboard with same endpoint as in backend.
+# https://abcd1234.ngrok.io/webhook/stripe
+# Stripe will send webhook event to backend until it receives a 200 OK response from backend
+
+@webhook_router.post("/webhook/stripe")
 async def payment_webhook(request: Request, db_session: AsyncSession = Depends(get_session), stripe_signature: str = Header(None)):
     """
     Handle Stripe webhook events.
