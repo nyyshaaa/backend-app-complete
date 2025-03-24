@@ -1,5 +1,5 @@
 from fastapi import APIRouter,HTTPException,Depends,status
-from .schemas import UserCreateModel,UserResponseModel,LoginUserModel
+from .schemas import UserCreateInput,UserCreateResponse,LoginUser
 from .services import UserService
 from sqlalchemy.ext.asyncio import  AsyncSession
 from src.db.dependencies import get_session
@@ -11,8 +11,8 @@ auth_router=APIRouter()
  
 user_service = UserService()
 
-@auth_router.post('/signup',response_model=UserResponseModel)
-async def create_user_account(user_payload:UserCreateModel,db_session:AsyncSession=Depends(get_session)):
+@auth_router.post('/signup',response_model=UserCreateResponse)
+async def create_user_account(user_payload:UserCreateInput,db_session:AsyncSession=Depends(get_session)):
 
     email=user_payload.email
 
@@ -33,7 +33,7 @@ async def create_user_account(user_payload:UserCreateModel,db_session:AsyncSessi
     
 
 @auth_router.post('/login')
-async def login_user(login_payload:LoginUserModel,db_session:AsyncSession=Depends(get_session)):
+async def login_user(login_payload:LoginUser,db_session:AsyncSession=Depends(get_session)):
     user=await user_service.get_user_identity(login_payload.email,db_session)
 
     if not user:

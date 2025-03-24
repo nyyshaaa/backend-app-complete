@@ -1,10 +1,10 @@
 from pydantic import BaseModel,Field
 from typing import Union,Optional
-from datetime import datetime
+from datetime import datetime 
 
 
 
-class UserCreateModel(BaseModel):
+class UserCreateInput(BaseModel):
     """For input validation after receiving from client and before sending to server"""
     username:Union[str,None]=None
     email:str
@@ -12,14 +12,13 @@ class UserCreateModel(BaseModel):
 
     #modify it to include avatars and check for their uploading and processing 
 
-class UserResponseModel(BaseModel):
+class UserCreateResponse(BaseModel):
     id:int
     name:str
+    about:str
     email:str
     created_at:datetime
-    deleted_at:Optional[datetime]=None
-    updated_at:datetime
 
-class LoginUserModel(BaseModel):
+class LoginUser(BaseModel):
     email:str
     password:str

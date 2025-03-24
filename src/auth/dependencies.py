@@ -3,7 +3,9 @@ from fastapi import Request,HTTPException,status
 from .utils import decode_token
 
 class TokenBearer(HTTPBearer):
-    def __init__(self,auto_error=True):
+
+    def __init__(self,auto_error=True):  # *is it necesary default is already tru?
+
         super().__init__(auto_error=auto_error)
 
     async def __call__(self, request:Request) -> http.HTTPAuthorizationCredentials|None:
