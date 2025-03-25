@@ -293,38 +293,38 @@ async def update_payment_status(intent,session,success):
                 raise HTTPException(status_code=500, detail=str(e))
 
 # -----Webhook endpoint for payment updates-----
-# @webhook_router.post("/webhook/stripe")
-# async def payment_webhook(request: Request, db_session: AsyncSession = Depends(get_session), stripe_signature: str = Header(None)):
-#     """
-#     Handle Stripe webhook events.
-#     Verifies if the signature is from stripe.
+@webhook_router.post("/webhook/stripe")
+async def payment_webhook(request: Request, db_session: AsyncSession = Depends(get_session), stripe_signature: str = Header(None)):
+    """
+    Handle Stripe webhook events.
+    Verifies if the signature is from stripe.
     
-#     Expected payload:
-#     {
-#       "order_id": <order_id>,
-#       "status": "completed" or "failed",
-#       "transaction_id": <stripe_transaction_id>
-#     }
-#     """
-#     payload=await request.body()
-#     try:
-#         event=stripe.Webhook.construct_event(payload,stripe_signature,configSettgs.WEBHOOK_SECRET)
-#     except ValueError:
-#         # Invalid payload
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid payload")
-#     except SignatureVerificationError:
-#         # Invalid signature
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid signature")
+    Expected payload:
+    {
+      "order_id": <order_id>,
+      "status": "completed" or "failed",
+      "transaction_id": <stripe_transaction_id>
+    }
+    """
+    payload=await request.body()
+    try:
+        event=stripe.Webhook.construct_event(payload,stripe_signature,configSettgs.WEBHOOK_SECRET)
+    except ValueError:
+        # Invalid payload
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid payload")
+    except SignatureVerificationError:
+        # Invalid signature
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid signature")
     
     
-#     if event["type"] == "payment_intent.succeeded":
-#         intent = event["data"]["object"]
-#         print(f"Payment succeeded for PaymentIntent {intent['id']}")
-#         update_payment_status(intent,db_session,success=True)
-#     elif event["type"] == "payment_intent.payment_failed":
-#         intent = event["data"]["object"]
-#         print(f"Payment failed for PaymentIntent {intent['id']}") 
-#         update_payment_status(intent,db_session,success=False) 
+    if event["type"] == "payment_intent.succeeded":
+        intent = event["data"]["object"]
+        print(f"Payment succeeded for PaymentIntent {intent['id']}")
+        update_payment_status(intent,db_session,success=True)
+    elif event["type"] == "payment_intent.payment_failed":
+        intent = event["data"]["object"]
+        print(f"Payment failed for PaymentIntent {intent['id']}") 
+        update_payment_status(intent,db_session,success=False) 
     
-#     return JSONResponse(content={"status": "success"})
+    return JSONResponse(content={"status": "success"})
     
