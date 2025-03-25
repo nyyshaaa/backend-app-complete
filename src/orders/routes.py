@@ -293,7 +293,7 @@ async def update_payment_status(intent,session,success):
                 raise HTTPException(status_code=500, detail=str(e))
 
 # -----Webhook endpoint for payment updates-----
-# @webhook_router.post("/stripe-webhook")
+# @webhook_router.post("/webhook/stripe")
 # async def payment_webhook(request: Request, db_session: AsyncSession = Depends(get_session), stripe_signature: str = Header(None)):
 #     """
 #     Handle Stripe webhook events.
