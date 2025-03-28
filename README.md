@@ -45,3 +45,8 @@ Will use browser as HTTP client or POSTMAN for making http requests requests to 
 3. Use stripe's secret key on server side to authenticate api calls to stripe , must be kept confidential as it has full access to account.
 4. Publishable key will be used on client side to tokenize credit card data before sending it to server
 5. Calling stripe API in test mode doesn't require card data as input
+
+#### Unit tests to check API endpoints logic
+
+1. In production environments and real systems , integration tests which make real calls to databse using a separate test databse for testing.
+2. We will override database dependencies ,so there will be no real calls to db
