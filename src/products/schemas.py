@@ -6,7 +6,6 @@ from decimal import Decimal
 
 class FrostyCreateIn(BaseModel):
    
-    user_id:int 
     title:str=Field(...,min_length=8)  #* ... check syntax
     description:Optional[str]=None
     item_image:Optional[str]=None
@@ -17,12 +16,12 @@ class FrostyResponseOut(BaseModel):
     id: int
     user_id: int 
     title: str
-    description: Optional[str]
+    description: Optional[str]=None
     item_image: str
     qty: int
     created_at: datetime
-    updated_at: Optional[datetime]
-    price: Optional[Decimal]
+    updated_at: Optional[datetime]=None
+    price: Optional[Decimal]=None
 
 class FrostyPatch(BaseModel):
     
