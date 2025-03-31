@@ -14,14 +14,14 @@ profile_router=APIRouter()
 
 
 @profile_router.get("/",response_model=UserProfileResponse)
-async def get_my_profile(jwt_token:dict=Depends(AccessTokenBearer()), db_session:AsyncSession=Depends(get_session)):
+async def get_my_profile(jwt_token=Depends(AccessTokenBearer()), db_session:AsyncSession=Depends(get_session)):
 
     token_user_id=jwt_token["user"]["user_id"]
     return await get_current_user(token_user_id,db_session)
    
 @profile_router.patch("/")
 async def update_user_profile(
-    user:UserUpdateRequest,jwt_token:dict=Depends(AccessTokenBearer()),db_session:AsyncSession=Depends(get_session)):
+    user:UserUpdateRequest,jwt_token=Depends(AccessTokenBearer()),db_session:AsyncSession=Depends(get_session)):
     
     token_user_id=jwt_token["user"]["user_id"]
     old_user=await get_current_user(token_user_id,db_session)
@@ -37,7 +37,7 @@ async def update_user_profile(
 
 
 @profile_router.delete("/")
-async def delete_user(jwt_token:dict=Depends(AccessTokenBearer()),db_session:AsyncSession=Depends(get_session)):
+async def delete_user(jwt_token=Depends(AccessTokenBearer()),db_session:AsyncSession=Depends(get_session)):
     token_user_id=jwt_token["user"]["user_id"]
     cur_user=await get_current_user(token_user_id,db_session)
     

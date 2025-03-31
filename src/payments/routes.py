@@ -80,7 +80,7 @@ async def process_payment_background(order_id: int, idempotency_key: str, sessio
 @orders_router.post("/{order_id}/pay")
 async def pay_later_payment(
     order_id: int, background_tasks:BackgroundTasks,idempotency_key: str=Depends(get_idempotency_key),
-    jwt_token:dict=Depends(AccessTokenBearer()), session_factory: AsyncSession=Depends(get_session_factory)):
+    jwt_token=Depends(AccessTokenBearer()), session_factory: AsyncSession=Depends(get_session_factory)):
     
     token_user_id=jwt_token["user"]["user_id"]
     async with session_factory() as session:

@@ -28,7 +28,7 @@ async def post_frost_item(frost_item,session):
     return new_frost_item
 
 @frosties_router.post("/",response_model=FrostyResponseOut)
-async def create_frosty(payload:FrostyCreateIn,jwt_token:dict=Depends(AccessTokenBearer()),db_session:AsyncSession=Depends(get_session)):
+async def create_frosty(payload:FrostyCreateIn,jwt_token=Depends(AccessTokenBearer()),db_session:AsyncSession=Depends(get_session)):
 
     token_user_id=jwt_token["user"]["user_id"]
     cur_user=await get_current_user(token_user_id,db_session)
