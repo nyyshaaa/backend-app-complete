@@ -12,9 +12,9 @@ async def get_current_user(token_user_id,session):
 
 
 
-async def authorize_current_user(token_user_id,session):
+async def authorize_current_user(user_id,token_user_id,session):
     cur_user=await get_current_user(token_user_id,session)
 
-    if not cur_user["id"]==token_user_id:
+    if not cur_user["id"]!=user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized ")
     return cur_user

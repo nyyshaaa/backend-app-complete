@@ -34,9 +34,18 @@ Will use browser as HTTP client or POSTMAN for making http requests requests to 
 3. GET/orders/{order_id}
    Returns full details of a specific order , including it's order items
    4.PATCH /orders/{order_id}/cancel
-   Allows a user to cancel an order if it's still pending
+   Allows a user to cancel an order if it's still not arrived yet
 4. PATCH /orders/{ORDER_id}/return
    Allows a user to initiate a return ,amount will be refunded.
+
+#### Workflow for payment/order initiation and completion
+
+(**For simplicity only considering COD option**)
+
+> User from cart clicks on Proceed to checkout - Frontend will show options for payment method - Pay first or Pay later .
+> User checks on pay first or pay later backend will query the get/chekout/summary to return the order details by recalculating amount.
+> Frontend will show order summary and provide pay now or create order based on pay first or pay later opted by user .
+> Send the request to POST /orders , payment method in request body . Based on pay method it will pay first and place order . Oy if it's pay later just create the order with success and user will be provided with pay option .
 
 #### Test mode stripe Integration
 

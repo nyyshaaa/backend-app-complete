@@ -107,6 +107,9 @@ class likes(DecBase):
         UniqueConstraint("user_id","frost_id",name="unique_user_like"),
     )
 
+#* keep payment_transaction_id in orders table , payment status and other payment details should go in other table as they are not order specific 
+#* each order should have a unique delivery address ,so a column of delivery address should be included in orders table .
+#* for simplicity only cod option is available . user places order -> order in progress -> make pay now avbl (when order is delivered or as the user wants)
 class orders(DecBase):
     __tablename__='orders'
     id=Column(BigInteger,primary_key=True,autoincrement=True)
@@ -114,12 +117,13 @@ class orders(DecBase):
     created_at=Column(TIMESTAMP,nullable=False,default=datetime.now)
     status=Column(Enum(orderstatus),default=orderstatus.PENDING,nullable=False)
     delivered_at = Column(TIMESTAMP, nullable=True)
-    amount=Column(Float,nullable=True) # column added later so for simplicity just keeping it null
-    payment_transaction_id=Column(String,nullable=True)
-    payment_status=Column(String,nullable=True)
+    amount=Column(Float,nullable=True) # column added later so for simplicity just allowing nulls
+    payment_transaction_id=Column(String,nullable=True) 
+    payment_status=Column(String,nullable=True)  #* chnage it to enum type for production env
     refund_transaction_id=Column(String,nullable=True)
     refund_status=Column(String,nullable=True)
     idempotency_key=Column(String,unique=True,nullable=True)
+    # pay_i_key=Column(String,unique=True,nullable=True)
     
 
 class orderitems(DecBase):
