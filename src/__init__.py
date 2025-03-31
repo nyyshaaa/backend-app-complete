@@ -25,7 +25,7 @@ async def app_lifespan(app:FastAPI):
 
 
 app=FastAPI(
-    title="Dreamer",
+    title="Dreamer", 
     description=description,
     version=version,
     lifespan=app_lifespan
