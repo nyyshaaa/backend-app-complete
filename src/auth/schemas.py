@@ -15,7 +15,6 @@ class UserCreateInput(BaseModel):
 class UserCreateResponse(BaseModel):
     id:int
     name:str
-    about:str
     email:str
 
 class LoginUser(BaseModel):
