@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class UserProfileResponse(BaseModel):
-    id:int     #**int or bigint?
+    id:int    
     name:str
     about:str
     email:str

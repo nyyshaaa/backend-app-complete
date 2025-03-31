@@ -27,9 +27,7 @@ async def create_user_account(user_payload:UserCreateInput,db_session:AsyncSessi
         return new_user
     except HTTPException as e:
         raise e
-    except Exception as e :
-        raise e
-    #*this try ecxept block feels redundant check once 
+    
     
 
 @auth_router.post('/login')

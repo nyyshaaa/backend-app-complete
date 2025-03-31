@@ -4,6 +4,7 @@ from src.db.connection import db_activecheck,async_engine,async_session
 from src.auth.routes import auth_router
 from src.users.routes import profile_router
 from src.products.routes import frosties_router
+from src.orders.routes import orders_router
 
 version="v1"
 
@@ -33,6 +34,7 @@ app=FastAPI(
 app.include_router(auth_router,prefix=f"{version_prefix}/auth",tags=["auth"])
 app.include_router(profile_router,prefix=f"{version_prefix}/profile",tags=["profile"])
 app.include_router(frosties_router,prefix=f"{version_prefix}/frosties",tags=["frosties"])
+app.include_router(orders_router,prefix=f"{version_prefix}/orders",tags=["orders"])
 
 
 # api endpoints naming clarity,consistency 

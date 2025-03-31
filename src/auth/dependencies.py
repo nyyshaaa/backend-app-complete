@@ -4,7 +4,7 @@ from .utils import decode_token
 
 class TokenBearer(HTTPBearer):
 
-    def __init__(self,auto_error=True):  # *is it necesary default is already tru?
+    def __init__(self,auto_error=True): 
 
         super().__init__(auto_error=auto_error)
 
