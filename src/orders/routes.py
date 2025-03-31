@@ -88,7 +88,7 @@ async def order_with_details(order_id,session):
 @orders_router.post("/")
 async def create_order(
     order_data:OrderCreate,
-    jwt_token:dict=Depends(AccessTokenBearer()),
+    jwt_token=Depends(AccessTokenBearer()),
     idempotency_key:str=Depends(get_idempotency_key),
     db_session:AsyncSession=Depends(get_session)):
 
