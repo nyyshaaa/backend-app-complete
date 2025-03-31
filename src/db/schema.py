@@ -31,7 +31,7 @@ class User(DecBase):
     email=Column(String(length=255),nullable=False,unique=True)
     password_hash=Column(String(length=300),nullable=False,unique=True)
     about=Column(Text,nullable=True)
-    avatar=Column(Text,nullable=False,server_default=text(f"'{DEFAULT_PROFILE_IMG}'")) #stores image url
+    avatar=Column(Text,nullable=False,default=DEFAULT_PROFILE_IMG,server_default=text(f"'{DEFAULT_PROFILE_IMG}'")) #stores image url
     created_at=Column(TIMESTAMP,nullable=False,default=datetime.now)
     deleted_at=Column(TIMESTAMP,nullable=True)
     updated_at=Column(TIMESTAMP,default=datetime.now,onupdate=datetime.now)
@@ -85,7 +85,7 @@ class Frosties(DecBase):
     user_id=Column(BigInteger,ForeignKey("users.id",ondelete="CASCADE")) 
     title=Column(String(600),nullable=False)
     description=Column(Text,nullable=True)
-    item_image=Column(Text,nullable=False,server_default=text(f"'{DEFAULT_PRODUCT_IMG}'"))
+    item_image=Column(Text,nullable=False,default=DEFAULT_PRODUCT_IMG,server_default=text(f"'{DEFAULT_PRODUCT_IMG}'"))
     qty=Column(Integer,nullable=False,default=1)
     created_at=Column(TIMESTAMP,nullable=False,default=datetime.now)
     updated_at=Column(TIMESTAMP,default=datetime.now,onupdate=datetime.now)
