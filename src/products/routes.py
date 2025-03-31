@@ -36,7 +36,8 @@ async def create_frosty(payload:FrostyCreateIn,jwt_token=Depends(AccessTokenBear
     if cur_user:
         frost_item_data = payload.model_dump()
         frost_item_data["user_id"] = token_user_id
-        result=await post_frost_item(frost_item_data,db_session)
+        frost_item_model=FrostyCreateIn(frost_item_data)
+        result=await post_frost_item(frost_item_model,db_session)
         return result
         
 async def get_frost_item(frost_id,session):
