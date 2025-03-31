@@ -5,7 +5,7 @@ import uuid,jwt,logging
 
 paswd_context=CryptContext(schemes=['bcrypt'],deprecated=["auto"])
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 def gen_pass_hash(password:str)->str:
@@ -17,7 +17,7 @@ def verify_password(password:str,hash:str)->str:
 
 def create_token(user_identity:dict,expires_time:timedelta=None,refresh:bool=False):
     payload={}
-    expiry=datetime.now() + (expires_time or timedelta(seconds=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expiry=datetime.now() + (expires_time or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
 
     payload["user"]=user_identity
     payload["exp"]=expiry
