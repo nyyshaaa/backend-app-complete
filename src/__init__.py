@@ -5,6 +5,7 @@ from src.auth.routes import auth_router
 from src.users.routes import profile_router
 from src.products.routes import frosties_router
 from src.orders.routes import orders_router
+from src.payments.routes import webhook_router
 
 version="v1"
 
@@ -35,6 +36,7 @@ app.include_router(auth_router,prefix=f"{version_prefix}/auth",tags=["auth"])
 app.include_router(profile_router,prefix=f"{version_prefix}/profile",tags=["profile"])
 app.include_router(frosties_router,prefix=f"{version_prefix}/frosties",tags=["frosties"])
 app.include_router(orders_router,prefix=f"{version_prefix}/orders",tags=["orders"])
+app.include_router(webhook_router,prefix=f"{version_prefix}/webhook",tags=["webhook"])
 
 
 # api endpoints naming clarity,consistency 

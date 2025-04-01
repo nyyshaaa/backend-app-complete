@@ -47,7 +47,7 @@ async def process_payment_simulation(order, i_key: str, attempt: int = 1, max_at
             return {"success": False}
     
 
-
+#for pay first case there will be no order_id ,so checks will be done based on order and pay status plus i_key 
 async def process_payment_background(order_id: int, idempotency_key: str, session_factory):
     # Wait for a short delay to simulate payment processing
     async with session_factory() as session:
@@ -55,18 +55,20 @@ async def process_payment_background(order_id: int, idempotency_key: str, sessio
         order=fetch_order(order_id,session)
 
         if not order:
-            return
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Bad request.")
         
-        # usually it will never happen that user can retry until they receive a response to retry , also we will use redis in production. 
-        # here just for simplicity adding a simple safety check to avoid in case we try the same request in test environment
-        if order.payment_status=="paid":
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Payment already processed")
+        # use in memory caches to store results by i_key , some request specificity of order , and response .
+        if order.payment_status=="completed" and order.status==orderstatus.COMPLETED:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Payment already done!")
+        elif order.payment_status=="failed" and order.status==orderstatus.failed:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Payment failed.")
+        
         
         payment_result = await process_payment_simulation(order, idempotency_key)
         if payment_result["success"]:
              order.status = orderstatus.COMPLETED
              order.payment_transaction_id = payment_result["transaction_id"]
-             order.payment_status = "paid"
+             order.payment_status = "completed"
         else:
             order.status = orderstatus.failed
             order.payment_status = "failed"
@@ -101,7 +103,7 @@ async def update_payment_status(intent,session,success):
             order.status = orderstatus.COMPLETED if success else orderstatus.failed
             order.payment_transaction_id = intent["id"]
             order.payment_status = "completed" if success else "failed"
-            order.delivered_at=datetime.now()  #* check syntax 
+            order.delivered_at=datetime.now() 
             try:
                 await session.commit()
             except Exception as e:
@@ -110,7 +112,7 @@ async def update_payment_status(intent,session,success):
 
 
 # -----Webhook endpoint for payment updates-----
-@webhook_router.post("/webhook/stripe")
+@webhook_router.post("/stripe")
 async def payment_webhook(request: Request, db_session: AsyncSession = Depends(get_session), stripe_signature: str = Header(None)):
     """
     Handle Stripe webhook events.
