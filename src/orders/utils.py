@@ -13,7 +13,7 @@ def get_idempotency_key(idempotency_key:Optional[str]=Header(...))->str:
 async def fetch_order(order_id,session):
     stmt=select(orders).where(orders.id==order_id)
     res=await session.execute(stmt)
-    return res.scalars.first()
+    return res.scalars().first()
 
 async def recalc_amount(order_id,session):
     stmt=select(func.sum(Frosties.price*orderitems.quantity)).join(
