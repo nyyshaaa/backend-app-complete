@@ -52,7 +52,7 @@ async def process_payment_background(order_id: int, idempotency_key: str, sessio
     # Wait for a short delay to simulate payment processing
     async with session_factory() as session:
         await asyncio.sleep(3)
-        order=fetch_order(order_id,session)
+        order=await fetch_order(order_id,session)
 
         if not order:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Bad request.")
