@@ -5,7 +5,7 @@ user_service=UserService()
 
 
 async def get_current_user(token_user_id,session):
-    user=user_service.get_user_details(token_user_id,session)
+    user=await user_service.get_user_details(token_user_id,session)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User not found")
     return user

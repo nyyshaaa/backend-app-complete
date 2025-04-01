@@ -18,7 +18,7 @@ user_service=UserService()
 
 async def post_frost_item(frost_item,session):
     try:
-        new_frost_item=Frosties(**frost_item.dict()) 
+        new_frost_item=Frosties(**frost_item) 
         session.add(new_frost_item)
         await session.commit()
         await session.refresh(new_frost_item)
@@ -31,13 +31,14 @@ async def post_frost_item(frost_item,session):
 async def create_frosty(payload:FrostyCreateIn,jwt_token=Depends(AccessTokenBearer()),db_session:AsyncSession=Depends(get_session)):
 
     token_user_id=jwt_token["user"]["user_id"]
+    print("token_user_id: ",token_user_id)
     cur_user=await get_current_user(token_user_id,db_session)
     
     if cur_user:
         frost_item_data = payload.model_dump()
         frost_item_data["user_id"] = token_user_id
-        frost_item_model=FrostyCreateIn(**frost_item_data)
-        result=await post_frost_item(frost_item_model,db_session)
+        print(frost_item_data)
+        result=await post_frost_item(frost_item_data,db_session)
         return result
         
 async def get_frost_item(frost_id,session):
