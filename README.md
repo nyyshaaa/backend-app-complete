@@ -55,9 +55,6 @@ Will use browser as HTTP client or POSTMAN for making http requests requests to 
 4. Publishable key will be used on client side to tokenize credit card data before sending it to server
 5. Calling stripe API in test mode doesn't require card data as input
 
-
-#### Unit tests to check API endpoints logic
-
-1. In production environments and real systems , integration tests which make real calls to databse using a separate test databse for testing.
-2. We will override database dependencies ,so there will be no real calls to db
+###### Integration testing via postman for payment calls to stripe api in test mode
+https://ionian-feeling-129.notion.site/Payments-integration-testing-postman-1c814b400ea780759220e845b56ebc2a?pvs=73
 
