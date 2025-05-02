@@ -86,7 +86,7 @@ async def pay_later_payment(
     
     token_user_id=jwt_token["user"]["user_id"]
     async with session_factory() as session:
-        cur_user=await get_current_user(token_user_id,session)  #* in case of error what will authorize return check again 
+        cur_user=await get_current_user(token_user_id,session) 
     
     if cur_user:
         # Trigger asynchronous payment processin via a background task.
@@ -126,6 +126,7 @@ async def payment_webhook(request: Request, db_session: AsyncSession = Depends(g
     }
     """
     payload=await request.body()
+    print("entered to webhook")
     try:
         event=stripe.Webhook.construct_event(payload,stripe_signature,configSettgs.WEBHOOK_SECRET)
     except ValueError:
