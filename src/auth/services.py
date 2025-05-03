@@ -8,7 +8,7 @@ from .utils import gen_pass_hash
 
 class UserService:
     async def get_user_identity(self,email:str,session:AsyncSession):
-        stmt=select(User.id,User.email,User.password_hash).where(User.email==email)
+        stmt=select(User.id,User.email,User.password_hash).where(User.email==email) #* check pass security properly
         res=await session.execute(stmt)
         user=res.first()
         return user
@@ -18,9 +18,14 @@ class UserService:
         res=await session.execute(stmt)
         return res.first()
     
-    async def get_user_details(self,user_id:int,session:AsyncSession):   # is int correct ?
+    async def get_user_details(self,user_id:int,session:AsyncSession):   
         user=await session.get(User,user_id)  
         return user
+    
+    async def get_user_id(self,user_id:int,session:AsyncSession):   
+        stmt=select(User.id).where(User.id==user_id)  
+        res=await session.execute(stmt)
+        return res.first()
         
     
     async def create_user(self,user_data:UserCreateInput,session:AsyncSession):

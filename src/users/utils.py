@@ -11,6 +11,13 @@ async def get_current_user(token_user_id,session):
     return user
 
 
+async def get_current_user_id(token_user_id,session):
+    res=await user_service.get_user_id(token_user_id,session)
+    if not res:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User not found")
+    return res
+
+
 
 async def authorize_current_user(user_id,token_user_id,session):
     cur_user=await get_current_user(token_user_id,session)

@@ -1,4 +1,4 @@
-from sqlite3 import IntegrityError
+from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter,Depends,HTTPException,status
 from sqlalchemy import select
 from src.auth.dependencies import AccessTokenBearer
@@ -9,12 +9,10 @@ from src.auth.services import UserService
 from src.db.schema import Frosties
 from datetime import datetime
 
-from src.users.utils import get_current_user
+from src.users.utils import get_current_user, get_current_user_id
 
 frosties_router=APIRouter()
 user_service=UserService()
-
-# best way to return responses with efficiency 
 
 async def post_frost_item(frost_item,session):
     try:
@@ -24,7 +22,7 @@ async def post_frost_item(frost_item,session):
         await session.refresh(new_frost_item)
     except IntegrityError:
         await session.rollback()
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Product already exists")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=f"Product already exists ")  # in real systems based on some i key or any unique key return the product in response similarly as on new insert by using UPSERT+RETURNING to frontend
     return new_frost_item
 
 @frosties_router.post("/",response_model=FrostyResponseOut)
@@ -53,9 +51,9 @@ async def get_frosty(frost_id:int,jwt_token:dict=Depends(AccessTokenBearer()),db
        
     token_user_id=jwt_token["user"]["user_id"]
 
-    cur_user=await get_current_user(token_user_id,db_session)
+    cur_user_id=await get_current_user_id(token_user_id,db_session)
 
-    if cur_user:
+    if cur_user_id:
         frost_item=await get_frost_item(frost_id,db_session)
         if not frost_item:
              raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No frost item exists with this id.")
