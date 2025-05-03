@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI,APIRouter
 from contextlib import asynccontextmanager
 from src.db.connection import db_activecheck,async_engine,async_session
@@ -23,7 +24,6 @@ async def app_lifespan(app:FastAPI):
     yield
 
     await async_engine.dispose()
-
 
 app=FastAPI(
     title="Dreamer", 
