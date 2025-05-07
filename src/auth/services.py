@@ -21,11 +21,17 @@ class UserService:
     async def get_user_details(self,user_id:int,session:AsyncSession):   
         user=await session.get(User,user_id)  
         return user
+        # stmt=select(User).where(User.id==user_id)  
+        # res=await session.execute(stmt)
+        # return res.scalar_one_or_none()
     
     async def get_user_id(self,user_id:int,session:AsyncSession):   
         stmt=select(User.id).where(User.id==user_id)  
         res=await session.execute(stmt)
-        return res.first()
+        res=res.first()  # return (id,) or None
+        print("user_id",res)
+        return res
+        
         
     
     async def create_user(self,user_data:UserCreateInput,session:AsyncSession):
