@@ -26,17 +26,6 @@ Will use browser as HTTP client or POSTMAN for making http requests requests to 
 
 > config.py file ---> 1. to read variables from .env(may contain credentials , passwords)
 
-#### Orders Endpoints
-
-1. POST /orders
-2. GET /orders
-   Returns a list of orders for the authenticated user (with filters/pagination as needed)
-3. GET/orders/{order_id}
-   Returns full details of a specific order , including it's order items
-   4.PATCH /orders/{order_id}/cancel
-   Allows a user to cancel an order if it's still not arrived yet
-4. PATCH /orders/{ORDER_id}/return
-   Allows a user to initiate a return ,amount will be refunded.
 
 #### Workflow for payment/order initiation and completion
 
