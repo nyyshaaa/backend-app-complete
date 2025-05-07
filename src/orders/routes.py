@@ -8,7 +8,6 @@ from src.auth.services import UserService
 from src.db.dependencies import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.dependencies import AccessTokenBearer
-from src.users.utils import get_current_user
 from .schema import OrderCreate, OrderDetailResponse
 from src.db.schema import orders,orderstatus,orderitems,Frosties
 from .utils import fetch_order, get_idempotency_key
@@ -113,14 +112,13 @@ async def create_order(
     db_session:AsyncSession=Depends(get_session)):
 
     token_user_id=jwt_token["user"]["user_id"]
-    cur_user=await get_current_user(token_user_id,db_session)
     
     order_data_dict=order_data.model_dump()
     order_data_dict["buyer_id"]=token_user_id
     
-    if cur_user:
-        new_order=await create_order_with_items(order_data_dict,db_session,idempotency_key)
-        return new_order
+   
+    new_order=await create_order_with_items(order_data_dict,db_session,idempotency_key)
+    return new_order
     
 
 

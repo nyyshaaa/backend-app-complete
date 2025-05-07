@@ -13,24 +13,6 @@ from typing import List
 orderitems_router=APIRouter()
 user_service=UserService()
 
-#* to be modified mostly
-
-# async def add_order_item(item_data,session):
-#     new_item = orderitems(**item_data.dict())
-#     session.add(new_item)
-#     try:
-#         await session.commit()
-#         await session.refresh(new_item)
-#     except Exception as e:
-#         await session.rollback()
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
-# @orderitems_router.post("/", response_model=OrderItemResponse)
-# async def create_order_item(
-#     item_data: OrderItemCreate,jwt_token:dict=Depends(AccessTokenBearer()),db_session: AsyncSession = Depends(get_session)):
-#     new_item=await add_order_item(item_data,db_session)
-#     return new_item
 
 # async def fetch_item(item_id,session):
 #     stmt = select(orderitems).where(orderitems.id == item_id)

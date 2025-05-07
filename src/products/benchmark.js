@@ -1,6 +1,6 @@
 import http from 'k6/http';
 
-let access_token="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoiZnJvc3RAZHJlYW1lci5jb20iLCJ1c2VyX2lkIjo1MDA0N30sImV4cCI6MTc0NjYxODM5NywianRpIjoiYjQ5OWQ1ODEtYzE4Ny00ODBjLTlmZjYtZmI4MjU1MDQzYmRmIiwicmVmcmVzaCI6ZmFsc2V9.4lnyxXdo8OUXjmoC0ZbHAVZWCAhj7k2QTLli52MWbTQ"
+let access_token=""  // get it via sending a login request in postman
 
 export let options = {
   scenarios: {
