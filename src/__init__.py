@@ -7,6 +7,8 @@ from src.users.routes import profile_router
 from src.products.routes import frosties_router
 from src.orders.routes import orders_router
 from src.payments.routes import webhook_router
+from prometheus_fastapi_instrumentator import Instrumentator
+
 
 version="v1"
 
@@ -18,9 +20,7 @@ version_prefix=f"/api/{version}"
 async def app_lifespan(app:FastAPI):
     
     await db_activecheck()
-    # app.state.engine=async_engine
-    # app.state.session=async_session  
-
+   
     yield
 
     await async_engine.dispose()
@@ -37,6 +37,9 @@ app.include_router(profile_router,prefix=f"{version_prefix}/profile",tags=["prof
 app.include_router(frosties_router,prefix=f"{version_prefix}/frosties",tags=["frosties"])
 app.include_router(orders_router,prefix=f"{version_prefix}/orders",tags=["orders"])
 app.include_router(webhook_router,prefix=f"{version_prefix}/webhook",tags=["webhook"])
+
+Instrumentator().instrument(app).expose(app) 
+
 
 
 # api endpoints naming clarity,consistency 
