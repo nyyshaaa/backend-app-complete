@@ -1,5 +1,7 @@
 from fastapi.security import HTTPBearer , http
-from fastapi import Request,HTTPException,status
+from fastapi import Request
+
+from src.exceptions import InvalidAccessToken, InvalidRefreshToken, InvalidToken
 from .utils import decode_token
 
 class TokenBearer(HTTPBearer):
@@ -15,7 +17,7 @@ class TokenBearer(HTTPBearer):
         decoded_token=decode_token(token)
 
         if not decoded_token:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Invalid or expired token")
+            raise InvalidToken()
         
         self.check_token_type(decoded_token)
 
@@ -24,15 +26,14 @@ class TokenBearer(HTTPBearer):
     def check_token_type(self,decoded_token):
         raise NotImplementedError("To be implemented in child classes")
     
-
 class AccessTokenBearer(TokenBearer):
     def check_token_type(self, dtoken:dict):
         if dtoken and dtoken["refresh"]:
-            raise HTTPException(status_code=400,detail="Please provide valid access token")
+            raise InvalidAccessToken()
         
 class RefreshTokenBearer(TokenBearer):
     def check_token_type(self, dtoken:dict):
         if dtoken and not dtoken["refresh"]:
-            raise HTTPException(status_code=400,detail="Please provide valid refresh token")
+            raise InvalidRefreshToken()
 
         

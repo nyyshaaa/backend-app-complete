@@ -5,11 +5,12 @@ from sqlalchemy import select, update
 from src.auth.dependencies import AccessTokenBearer
 from src.db.dependencies import get_session
 from sqlalchemy.ext.asyncio import  AsyncSession
+from src.exceptions import FrostyNotFound
 from src.products.schemas import FrostyCreateIn, FrostyPatch,FrostyResponseOut
 from src.auth.services import UserService
 from src.db.schema import Frosties
 from datetime import datetime
-from .utils import frosties_columns
+from .constants import frosties_columns
 
 from src.users.utils import get_current_user, get_current_user_id
 
@@ -28,6 +29,8 @@ async def post_frost_item(frost_item,session):
         await session.rollback()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=f"Product already exists ")  # in real systems based on some i key or any unique key return the product in response similarly as on new insert by using UPSERT+RETURNING to frontend
     return new_frost_item
+
+#* addexception class and exception handler for db error
 
 @frosties_router.post("/",response_model=FrostyResponseOut)
 async def create_frosty(payload:FrostyCreateIn,jwt_token=Depends(AccessTokenBearer()),db_session:AsyncSession=Depends(get_session)):
@@ -54,17 +57,13 @@ async def get_frosty(frost_id:int,jwt_token:dict=Depends(AccessTokenBearer()),db
        
     token_user_id=jwt_token["user"]["user_id"]
     
-    # cur_user_id=await get_current_user_id(token_user_id,db_session)
-
     if token_user_id:
         
         frost_item=await get_frost_item(frost_id,token_user_id,db_session)
         if not frost_item:
-             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No frost item found or unautorized user")
+             raise FrostyNotFound(frost_id=frost_id)
         return frost_item 
-
-async def get_frost_item2():
-    pass
+    
 
 async def update_frost_item(frost_id,user_id,new_item,session):
     update_data=new_item.model_dump(exclude_unset=True)
@@ -84,7 +83,7 @@ async def update_frosty(frost_id:int,frost_item:FrostyPatch,jwt_token:dict=Depen
     updated_item=await update_frost_item(frost_id,user_id,frost_item,db_session)
 
     if not updated_item:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No frost item found or unautorized user")
+        raise FrostyNotFound(frost_id=frost_id)
     
     return updated_item  
 
