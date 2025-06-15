@@ -12,6 +12,7 @@ user_service=UserService()
 
 profile_router=APIRouter()
 
+#* check if to raise for network errors here 
 
 @profile_router.get("/",response_model=UserProfileResponse)
 async def get_my_profile(jwt_token=Depends(AccessTokenBearer()), db_session:AsyncSession=Depends(get_session)):

@@ -1,4 +1,6 @@
 from fastapi import APIRouter,HTTPException,Depends,status
+
+from src.exceptions import AccountExists, ExpiredToken, IncorrectPassword, NoAccountExists
 from .schemas import UserCreateInput,UserCreateResponse,LoginUser
 from .services import UserService
 from sqlalchemy.ext.asyncio import  AsyncSession
@@ -21,7 +23,7 @@ async def create_user_account(user_payload:UserCreateInput,db_session:AsyncSessi
         # print("user_exists",user_exists)
 
         if user_exists:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Account already exists with this email")
+            raise AccountExists()
         
         new_user=await user_service.create_user(user_payload,db_session)
         return new_user
@@ -29,19 +31,18 @@ async def create_user_account(user_payload:UserCreateInput,db_session:AsyncSessi
         raise e
     
     
-
 @auth_router.post('/login')
 async def login_user(login_payload:LoginUser,db_session:AsyncSession=Depends(get_session)):
     user=await user_service.get_user_identity(login_payload.email,db_session)
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="No account exists for this email")
+        raise NoAccountExists()
     
     is_pass_valid=verify_password(login_payload.password,user.password_hash)
     print(login_payload.password)
 
     if not is_pass_valid:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Password is incorrect")
+        raise IncorrectPassword()
     
     access_token=create_token(user_identity={'email':user.email,'user_id':user.id})
     refresh_token=create_token(user_identity=
@@ -59,4 +60,5 @@ async def refresh_new_token(jwt_token:dict=Depends(RefreshTokenBearer())):
         new_token=create_token(user_identity=jwt_token["user"])
         return {"access_token":new_token}
     
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,details="Expired Token")
+    raise ExpiredToken()
+
