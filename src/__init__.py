@@ -8,7 +8,7 @@ from src.products.routes import frosties_router
 from src.orders.routes import orders_router
 from src.payments.routes import webhook_router
 from prometheus_fastapi_instrumentator import Instrumentator
-
+from src.exceptions import register_exceptions
 
 version="v1"
 
@@ -31,6 +31,8 @@ app=FastAPI(
     version=version,
     lifespan=app_lifespan
     )
+
+register_exceptions(app)
 
 app.include_router(auth_router,prefix=f"{version_prefix}/auth",tags=["auth"])
 app.include_router(profile_router,prefix=f"{version_prefix}/profile",tags=["profile"])
