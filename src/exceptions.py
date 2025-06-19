@@ -1,135 +1,124 @@
+from collections.abc import Callable
+from typing import Any, Type
 from fastapi import FastAPI, Request,status
 from fastapi.responses import JSONResponse
 
-class InvalidAccessToken(Exception):
-    def init__(self, message:str="Invalid access token provided."):
-        self.message = message
-        self.status_code=status.HTTP_403_FORBIDDEN
+class FrostiesException(Exception):
+    """
+    Base for all domain errors:
+      - default detail message
+      - arbitrary extra attributes
+      - subclasses *must* define `status_code` and `detail`
+    """
+    detail: str = "An error occurred."
+    status_code: int = status.HTTP_400_BAD_REQUEST
 
-class InvalidRefreshToken(Exception):
-    def init__(self, message:str="Invalid refresh token provided."):
-        self.message = message
-        self.status_code=status.HTTP_403_FORBIDDEN
+    def __init__(
+        self,
+        *,
+        detail: str | None = None,
+        **kwargs: Any,
+    ):
+        if detail is not None:
+            self.detail = detail
+        # attach extra context fields (e.g., cart_id, user_id)
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
-class InvalidToken(Exception):
-    def init__(self, message:str="Invalid or expired token provided."):
-        self.message = message
-        self.status_code=status.HTTP_403_FORBIDDEN
 
-class AccountExists():
-    def __init__(self,message:str="Account already exists with this email."):
-        self.message = message
-        self.status_code=status.HTTP_409_CONFLICT
+class InvalidAccessToken(FrostiesException):
+    detail = "Invalid access token provided."
+    status_code = status.HTTP_403_FORBIDDEN
 
-class NoAccountExists(Exception):
-    def __init__(self,message:str="No account exists for this email."):
-        self.message = message
-        self.status_code=status.HTTP_404_NOT_FOUND   #* 401 OR 404
+class InvalidRefreshToken(FrostiesException):
+    detail = "Invalid refresh token provided."
+    status_code = status.HTTP_403_FORBIDDEN
 
-class IncorrectPassword(Exception):
-    def __init__(self,message:str="Password is incorrect"):
-        self.message = message
-        self.status_code=status.HTTP_401_UNAUTHORIZED
+class InvalidToken(FrostiesException):
+    detail = "Invalid or expired token provided."
+    status_code = status.HTTP_403_FORBIDDEN
 
-class ExpiredToken(Exception):
-    def __init__(self, message: str = "Token has expired. Please login again."):
-        self.message = message
-        self.status_code = status.HTTP_401_UNAUTHORIZED
+class AccountExists(FrostiesException):
+    detail = "Account already exists with this email."
+    status_code = status.HTTP_409_CONFLICT
 
-class UserNotFound(Exception):
-    def __init__(self, message: str = "User not found"):
-        self.message = message
-        self.status_code = status.HTTP_404_NOT_FOUND
+class NoAccountExists(FrostiesException):
+    detail = "No account exists for this email."
+    status_code = status.HTTP_404_NOT_FOUND
 
-class FrostyNotFound(Exception):
-    def __init__(self, frost_id: int,message:str="Frost item not found or unautorized user."):
-        self.status_code=status.HTTP_404_NOT_FOUND
-        self.message=f"Frost item with id {frost_id} not found or unautorized user."
+class IncorrectPassword(FrostiesException):
+    detail = "Password is incorrect."
+    status_code = status.HTTP_401_UNAUTHORIZED
 
-class FrostyExists(Exception):
-    def __init__(self, message:str="Product already exists"):
-        self.status_code=status.HTTP_409_CONFLICT
-        self.message=message
+class ExpiredToken(FrostiesException):
+    detail = "Token has expired. Please login again."
+    status_code = status.HTTP_401_UNAUTHORIZED
+
+class UserNotFound(FrostiesException):
+    detail = "User not found."
+    status_code = status.HTTP_404_NOT_FOUND
+
+class FrostyNotFound(FrostiesException):
+        status_code=status.HTTP_404_NOT_FOUND
+        def __init__(self,*,frost_id,detail:str|None=None):
+            message=detail or f"Frost item with id {frost_id} not found or unauthorized user."
+            super().__init__(detail=message, frost_id=frost_id)
+
+class FrostyExists(FrostiesException):
+    detail = "Product already exists."
+    status_code = status.HTTP_409_CONFLICT
 
 # class NotAuthorized(Exception):
-#     def __init__(self,message:str="User Not authorized"):
+#     def ____init__(self,message:str="User Not authorized"):
 #         self.message = message
 #         self.status_code=status.HTTP_403_FORBIDDEN
 
-def create_exception_handler(detail_fn):
-    async def exception_handler(request:Request, exc:Exception):
+DetailFn = Callable[[FrostiesException], Any]
+
+def create_exception_handler(detail_fn:DetailFn)-> Callable[[Request, Exception], JSONResponse]:
+    async def exception_handler(request:Request, exc:FrostiesException) :
         try:
             body = detail_fn(exc)     
-            code = exc.status_code or detail_fn(exc).get("status_code", status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except Exception:
+            code = exc.status_code or status.HTTP_400_BAD_REQUEST
+        except Exception as e:
             # Something *went wrong in your handler code itself*—
             # e.g. `` was missing and you got an AttributeError.
-            body = {"message": str(exc)}
+            body = {"detail": str(e)}
             code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
         return JSONResponse(status_code=code, content=body)
       
     return exception_handler
 
+
+
 def register_exceptions(app: FastAPI):
 
-    app.add_exception_handler(
-        InvalidAccessToken, 
-        create_exception_handler(detail_fn=lambda exc: {"message": exc.message})   
-    )
+    mapping : list [tuple[Type[FrostiesException],DetailFn]]=[
+        (InvalidAccessToken, lambda exc: {"message": exc.detail}),
+        (InvalidRefreshToken, lambda exc: {"message": exc.detail}),
+        (InvalidToken, lambda exc: {"message": exc.detail}),
+        (AccountExists, lambda exc: {"message": exc.detail}),
+        (NoAccountExists, lambda exc: {"message": exc.detail}),
+        (IncorrectPassword, lambda exc: {"message": exc.detail}),
+        (ExpiredToken, lambda exc: {"message": exc.detail}),
+        (UserNotFound, lambda exc: {"message": exc.detail}),
+        (FrostyNotFound, lambda exc: {"message": exc.detail, "frost_id": exc.frost_id}),
+        (FrostyExists, lambda exc: {"message": exc.detail}),
+    ]
+
+    for exc_cls, fn in mapping:
+        app.add_exception_handler(
+            exc_cls,
+            create_exception_handler(detail_fn=fn)
+        )
 
     app.add_exception_handler(
-        InvalidRefreshToken, 
-        create_exception_handler(detail_fn=lambda exc: {"message": exc.message})   
-    )
-
-    app.add_exception_handler(
-        InvalidToken, 
-        create_exception_handler(detail_fn=lambda exc: {"message": exc.message})                                    
-    )
-
-    app.add_exception_handler(
-        AccountExists, 
-        create_exception_handler(detail_fn=lambda exc: {"message": exc.message})                                  
-    )
-
-    app.add_exception_handler(
-        NoAccountExists, 
-        create_exception_handler(detail_fn=lambda exc: {"message": exc.message})                                        
-    )
-
-    app.add_exception_handler(
-        IncorrectPassword, 
-        create_exception_handler(detail_fn=lambda exc: {"message": exc.message})       
-    )
-
-    app.add_exception_handler(
-        ExpiredToken, 
-        create_exception_handler(detail_fn=lambda exc: {"message": exc.message})   
-    )
-
-    app.add_exception_handler(
-        UserNotFound, 
-        create_exception_handler(detail_fn=lambda exc: {"message": exc.message})                                       
-    )
-    
-    app.add_exception_handler(
-        FrostyNotFound, 
-        create_exception_handler(detail_fn=lambda exc: {"message": exc.message})   
-    )
-
-    app.add_exception_handler(
-        FrostyExists, 
-        create_exception_handler(detail_fn=lambda exc: {"message": exc.message})   
-    )
-
-    app.add_exception_handler(
-        500, # catch all unidentified/unhandled exceptions
+        Exception, # catch all unidentified/unhandled exceptions
         create_exception_handler(
             detail_fn=lambda exc: {
                 "message": getattr(exc, "detail", "Internal server error"),
-                "error_type": type(exc).__name__,
-                "status_code": getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR),
+                "error_type": type(exc).__name__
             }
         )
     )
