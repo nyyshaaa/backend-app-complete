@@ -167,7 +167,7 @@ app.add_exception_handler(
 
 4. **Static Payloads vs Dynamic**
 
-   * Static (Bookly) is simplest when no instance data is needed.
+   * Static is simplest when no instance data is needed.
    * Dynamic (reading `exc` in handler) is essential for per‑instance details like IDs or retry hints.
 
 This hybrid pattern evolved by asking:
