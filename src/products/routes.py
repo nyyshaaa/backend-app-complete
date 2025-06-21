@@ -5,7 +5,7 @@ from sqlalchemy import select, update
 from src.auth.dependencies import AccessTokenBearer
 from src.db.dependencies import get_session
 from sqlalchemy.ext.asyncio import  AsyncSession
-from src.exceptions import FrostyNotFound
+from src.exceptions import FrostyExists, FrostyNotFound
 from src.products.schemas import FrostyCreateIn, FrostyPatch,FrostyResponseOut
 from src.auth.services import UserService
 from src.db.schema import Frosties
@@ -27,10 +27,9 @@ async def post_frost_item(frost_item,session):
         await session.refresh(new_frost_item)
     except IntegrityError:
         await session.rollback()
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=f"Product already exists ")  # in real systems based on some i key or any unique key return the product in response similarly as on new insert by using UPSERT+RETURNING to frontend
+        raise FrostyExists()  # in real systems based on some i key or any unique key return the product in response similarly as on new insert by using UPSERT+RETURNING to frontend
     return new_frost_item
 
-#* addexception class and exception handler for db error
 
 @frosties_router.post("/",response_model=FrostyResponseOut)
 async def create_frosty(payload:FrostyCreateIn,jwt_token=Depends(AccessTokenBearer()),db_session:AsyncSession=Depends(get_session)):
@@ -87,7 +86,7 @@ async def update_frosty(frost_id:int,frost_item:FrostyPatch,jwt_token:dict=Depen
     
     return updated_item  
 
-async def delete_frosty(frost_id,user_id,session):
+async def delete_frost_item(frost_id,user_id,session):
     stmt=update(Frosties
                 ).where(Frosties.user_id==user_id,Frosties.id==frost_id
                         ).values(deleted_at=datetime.now())
@@ -100,7 +99,7 @@ async def delete_frosty(frost_id:int,jwt_token:dict=Depends(AccessTokenBearer())
     
     user_id=jwt_token["user"]["user_id"]
     
-    await delete_frosty(frost_id,user_id,db_session)
+    await delete_frost_item(frost_id,user_id,db_session)
     return {"message": "Frost item deleted successfully"}
 
 
