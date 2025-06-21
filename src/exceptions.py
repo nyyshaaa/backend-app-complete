@@ -1,5 +1,6 @@
+
 from collections.abc import Callable
-from typing import Any, Type
+from typing import Any, Type, Union
 from fastapi import FastAPI, Request,status
 from fastapi.responses import JSONResponse
 
@@ -10,17 +11,19 @@ class FrostiesException(Exception):
       - arbitrary extra attributes
       - subclasses *must* define `status_code` and `detail`
     """
-    detail: str = "An error occurred."
-    status_code: int = status.HTTP_400_BAD_REQUEST
+    detail: str
+    status_code: int
 
     def __init__(
         self,
         *,
         detail: str | None = None,
+        status_code: int | None = None,
         **kwargs: Any,
     ):
-        if detail is not None:
-            self.detail = detail
+        
+        self.detail = detail if detail is not None else getattr(self, "detail")
+        self.status_code = status_code if status_code is not None else getattr(self, "status_code")
         # attach extra context fields (e.g., cart_id, user_id)
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -59,10 +62,12 @@ class UserNotFound(FrostiesException):
     status_code = status.HTTP_404_NOT_FOUND
 
 class FrostyNotFound(FrostiesException):
-        status_code=status.HTTP_404_NOT_FOUND
-        def __init__(self,*,frost_id,detail:str|None=None):
-            message=detail or f"Frost item with id {frost_id} not found or unauthorized user."
-            super().__init__(detail=message, frost_id=frost_id)
+    status_code = status.HTTP_404_NOT_FOUND
+    detail = "Frost item not found or unauthorized user."
+    
+    def __init__(self, *, frost_id:int, detail: str | None = None):
+        message = detail or f"Frost item with id {frost_id} not found or unauthorized user."
+        super().__init__(detail=message, frost_id=frost_id)
 
 class FrostyExists(FrostiesException):
     detail = "Product already exists."
@@ -75,20 +80,37 @@ class FrostyExists(FrostiesException):
 
 DetailFn = Callable[[FrostiesException], Any]
 
-def create_exception_handler(detail_fn:DetailFn)-> Callable[[Request, Exception], JSONResponse]:
-    async def exception_handler(request:Request, exc:FrostiesException) :
+def create_exception_handler(detail_fn:DetailFn):
+    async def exception_handler(request:Request, exc:Exception):   
+        if not isinstance(exc, FrostiesException):
+            # (should never happen in per‑type registrations)
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"message": "Internal server error", "error_type": type(exc).__name__},
+            ) 
         try:
             body = detail_fn(exc)     
-            code = exc.status_code or status.HTTP_400_BAD_REQUEST
+            code = exc.status_code
         except Exception as e:
-            # Something *went wrong in your handler code itself*—
-            # e.g. `` was missing and you got an AttributeError.
+            # Something *went wrong in handler code itself*—
+            # e.g. `` was missing and got an AttributeError.
             body = {"detail": str(e)}
             code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
         return JSONResponse(status_code=code, content=body)
       
     return exception_handler
+
+
+async def fallback_handler(request: Request, exc: Exception):
+    
+    body = {
+        "message": "Internal server error",
+        "error_type": type(exc).__name__
+    }
+    code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    
+    return JSONResponse(status_code=code, content=body)
 
 
 
@@ -103,7 +125,7 @@ def register_exceptions(app: FastAPI):
         (IncorrectPassword, lambda exc: {"message": exc.detail}),
         (ExpiredToken, lambda exc: {"message": exc.detail}),
         (UserNotFound, lambda exc: {"message": exc.detail}),
-        (FrostyNotFound, lambda exc: {"message": exc.detail, "frost_id": exc.frost_id}),
+        (FrostyNotFound, lambda exc: {"message": exc.detail, "frost_id": getattr(exc,"frost_id")}),
         (FrostyExists, lambda exc: {"message": exc.detail}),
     ]
 
@@ -115,14 +137,5 @@ def register_exceptions(app: FastAPI):
 
     app.add_exception_handler(
         Exception, # catch all unidentified/unhandled exceptions
-        create_exception_handler(
-            detail_fn=lambda exc: {
-                "message": getattr(exc, "detail", "Internal server error"),
-                "error_type": type(exc).__name__
-            }
-        )
+        fallback_handler
     )
-
-   
-    
-

@@ -86,7 +86,7 @@ async def update_frosty(frost_id:int,frost_item:FrostyPatch,jwt_token:dict=Depen
     
     return updated_item  
 
-async def delete_frosty(frost_id,user_id,session):
+async def delete_frost_item(frost_id,user_id,session):
     stmt=update(Frosties
                 ).where(Frosties.user_id==user_id,Frosties.id==frost_id
                         ).values(deleted_at=datetime.now())
@@ -99,7 +99,7 @@ async def delete_frosty(frost_id:int,jwt_token:dict=Depends(AccessTokenBearer())
     
     user_id=jwt_token["user"]["user_id"]
     
-    await delete_frosty(frost_id,user_id,db_session)
+    await delete_frost_item(frost_id,user_id,db_session)
     return {"message": "Frost item deleted successfully"}
 
 

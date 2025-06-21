@@ -1,6 +1,6 @@
 from fastapi import HTTPException,status
 from src.auth.services import UserService
-from src.exceptions import NotAuthorized, UserNotFound
+from src.exceptions import UserNotFound
 
 user_service=UserService()
 
