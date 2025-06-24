@@ -11,4 +11,6 @@ discover.py
 dummy.py
 extra/
 
+.pytest_cache/
+
 

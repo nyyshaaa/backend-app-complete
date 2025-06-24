@@ -21,6 +21,13 @@ async def get_current_user_id(token_user_id,session):
         raise UserNotFound()
     return user_id
 
+
+async def get_user_public_info(user_id,session):
+    user=await user_service.get_user_public(user_id,session)
+    if not user:
+        raise UserNotFound()
+    return user
+
 # async def authorize_current_user(user_id,token_user_id,session):
 #     cur_user=await get_current_user(token_user_id,session)
 

@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     # DB_SYNC_URL:str
     STRIPE_TEST_SECRET_KEY:str
     WEBHOOK_SECRET:str
+    TEST_TOKEN:str
     
     model_config=SettingsConfigDict(
         env_file=".env",

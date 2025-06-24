@@ -60,6 +60,7 @@ async def get_frosty(frost_id:int,jwt_token:dict=Depends(AccessTokenBearer()),db
         
         frost_item=await get_frost_item(frost_id,token_user_id,db_session)
         if not frost_item:
+            #  raise FrostyNotFound()
              raise FrostyNotFound(frost_id=frost_id)
         return frost_item 
     

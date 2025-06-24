@@ -4,6 +4,8 @@ from typing import Any, Type, Union
 from fastapi import FastAPI, Request,status
 from fastapi.responses import JSONResponse
 
+
+
 class FrostiesException(Exception):
     """
     Base for all domain errors:
@@ -46,7 +48,7 @@ class AccountExists(FrostiesException):
     status_code = status.HTTP_409_CONFLICT
 
 class NoAccountExists(FrostiesException):
-    detail = "No account exists for this email."
+    detail = "No account exists for this email. Please signup."
     status_code = status.HTTP_404_NOT_FOUND
 
 class IncorrectPassword(FrostiesException):
@@ -70,7 +72,7 @@ class FrostyNotFound(FrostiesException):
         super().__init__(detail=message, frost_id=frost_id)
 
 class FrostyExists(FrostiesException):
-    detail = "Product already exists."
+    detail = "Frosty already exists."
     status_code = status.HTTP_409_CONFLICT
 
 # class NotAuthorized(Exception):
@@ -78,6 +80,7 @@ class FrostyExists(FrostiesException):
 #         self.message = message
 #         self.status_code=status.HTTP_403_FORBIDDEN
 
+# detail_fn can be allowed to accept any Exception as well 
 DetailFn = Callable[[FrostiesException], Any]
 
 def create_exception_handler(detail_fn:DetailFn):
@@ -96,19 +99,19 @@ def create_exception_handler(detail_fn:DetailFn):
             # e.g. `` was missing and got an AttributeError.
             body = {"detail": str(e)}
             code = status.HTTP_500_INTERNAL_SERVER_ERROR
-
+        
         return JSONResponse(status_code=code, content=body)
       
     return exception_handler
 
-
+# use a different handler for unhandled exceptions as detail_fn is denfined for FrostiesException subclasses
 async def fallback_handler(request: Request, exc: Exception):
     
     body = {
-        "message": "Internal server error",
+        "message": getattr(exc, "detail", "Internal server error"),
         "error_type": type(exc).__name__
     }
-    code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    code = getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     return JSONResponse(status_code=code, content=body)
 
@@ -139,3 +142,4 @@ def register_exceptions(app: FastAPI):
         Exception, # catch all unidentified/unhandled exceptions
         fallback_handler
     )
+
