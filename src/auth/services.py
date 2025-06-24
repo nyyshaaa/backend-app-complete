@@ -24,6 +24,11 @@ class UserService:
         # stmt=select(User).where(User.id==user_id)  
         # res=await session.execute(stmt)
         # return res.scalar_one_or_none()
+
+    async def get_user_public(self,user_id:int,session:AsyncSession):   
+        stmt=select(User.id,User.name,User.email,User.about,User.avatar).where(User.id==user_id)
+        res=await session.execute(stmt)
+        return res.first()
     
     async def get_user_id(self,user_id:int,session:AsyncSession):   
         stmt=select(User.id).where(User.id==user_id)  

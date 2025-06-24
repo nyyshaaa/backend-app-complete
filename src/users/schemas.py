@@ -11,6 +11,13 @@ class UserProfileResponse(BaseModel):
     avatar:str
     created_at:datetime
 
+class UserPublicResponse(BaseModel):
+    id:int    
+    name:str
+    email:str
+    about:str
+    avatar:str
+
 class UserUpdateRequest(BaseModel):
     name:str
     about:str

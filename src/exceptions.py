@@ -4,6 +4,8 @@ from typing import Any, Type, Union
 from fastapi import FastAPI, Request,status
 from fastapi.responses import JSONResponse
 
+
+
 class FrostiesException(Exception):
     """
     Base for all domain errors:
@@ -46,7 +48,7 @@ class AccountExists(FrostiesException):
     status_code = status.HTTP_409_CONFLICT
 
 class NoAccountExists(FrostiesException):
-    detail = "No account exists for this email."
+    detail = "No account exists for this email. Please signup."
     status_code = status.HTTP_404_NOT_FOUND
 
 class IncorrectPassword(FrostiesException):
@@ -70,7 +72,7 @@ class FrostyNotFound(FrostiesException):
         super().__init__(detail=message, frost_id=frost_id)
 
 class FrostyExists(FrostiesException):
-    detail = "Product already exists."
+    detail = "Frosty already exists."
     status_code = status.HTTP_409_CONFLICT
 
 # class NotAuthorized(Exception):
@@ -97,7 +99,7 @@ def create_exception_handler(detail_fn:DetailFn):
             # e.g. `` was missing and got an AttributeError.
             body = {"detail": str(e)}
             code = status.HTTP_500_INTERNAL_SERVER_ERROR
-
+        
         return JSONResponse(status_code=code, content=body)
       
     return exception_handler
