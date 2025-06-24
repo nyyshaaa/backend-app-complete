@@ -8,17 +8,18 @@ from src.exceptions import FrostyNotFound, InvalidAccessToken, UserNotFound
 from src.products.routes import get_frosty
 from src.users.utils import  get_user_public_info
 from src.config import configSettgs
+from asgi_lifespan import LifespanManager
 
 
 TEST_ACCESS_TOKEN=configSettgs.TEST_TOKEN
 
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def client():
-   
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as ac:
-        yield ac
+    async with LifespanManager(app):  
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver") as ac:
+            yield ac
     
 
 # @pytest.mark.asyncio
@@ -51,7 +52,7 @@ async def client():
 
 #     app.dependency_overrides.pop(get_user_public_info, None)
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_frosty_not_found(client):
     # Stub out DB lookup to always raise
     async def missing_frosty(frost_id: int):
@@ -67,7 +68,7 @@ async def test_frosty_not_found(client):
 
     app.dependency_overrides.pop(get_frosty, None)
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_user_not_found(client):
     # Stub out DB lookup to always raise
     async def missing_user():
