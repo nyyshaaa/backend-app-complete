@@ -39,19 +39,6 @@ async def client():
 #     app.dependency_overrides.pop(AccessTokenBearer, None)
 
 
-# @pytest.mark.asyncio
-# async def test_user_not_found(client):
-#     # Stub out DB lookup to always raise
-#     async def missing_user():
-#         raise UserNotFound()
-#     app.dependency_overrides[get_user_public_info] = missing_user
-
-#     r = await client.get("/api/v1/profile/42")
-#     assert r.status_code == status.HTTP_404_NOT_FOUND
-#     assert r.json() == {"message": "User not found."}
-
-#     app.dependency_overrides.pop(get_user_public_info, None)
-
 @pytest.mark.anyio
 async def test_frosty_not_found(client):
     # Stub out DB lookup to always raise
