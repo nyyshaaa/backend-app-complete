@@ -44,8 +44,8 @@ async def create_frosty(payload:FrostyCreateIn,jwt_token=Depends(AccessTokenBear
     return result
         
 async def get_frost_item(frost_id,user_id,session):
-    stmt=select(*frosties_columns).where(Frosties.user_id==user_id,Frosties.id==frost_id)
-    # stmt=select(Frosties).where(Frosties.id==frost_id) 
+    # stmt=select(*frosties_columns).where(Frosties.user_id==user_id,Frosties.id==frost_id)
+    stmt=select(Frosties).where(Frosties.user_id==user_id,Frosties.id==frost_id) 
     res=await session.execute(stmt)
     result=res.mappings().first()
     return result
