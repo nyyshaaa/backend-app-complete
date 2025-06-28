@@ -1,3 +1,5 @@
+In Progress...
+
 > Virtual Environment Creation
 
 > a python3 -m venv venv (venv python module , virtual environment name)
@@ -23,3 +25,25 @@ Will use browser as HTTP client or POSTMAN for making http requests requests to 
 > python src/db/schema_seed.py
 
 > config.py file ---> 1. to read variables from .env(may contain credentials , passwords)
+
+
+#### Workflow for payment/order initiation and completion
+
+(**For simplicity only considering COD option**)
+
+> User from cart clicks on Proceed to checkout - Frontend will show options for payment method - Pay first or Pay later .
+> User checks on pay first or pay later backend will query the get/chekout/summary to return the order details by recalculating amount.
+> Frontend will show order summary and provide pay now or create order based on pay first or pay later opted by user .
+> Send the request to POST /orders , payment method in request body . Based on pay method it will pay first and place order . Oy if it's pay later just create the order with success and user will be provided with pay option .
+
+#### Test mode stripe Integration
+
+1. pip install stripe
+2. stripe lets you simulate creating real objects without the risk of affecting real transactions or moving actual money(test mode)
+3. Use stripe's secret key on server side to authenticate api calls to stripe , must be kept confidential as it has full access to account.
+4. Publishable key will be used on client side to tokenize credit card data before sending it to server
+5. Calling stripe API in test mode doesn't require card data as input
+
+###### Integration testing via postman for payment calls to stripe api in test mode
+https://ionian-feeling-129.notion.site/Payments-integration-testing-postman-1c814b400ea780759220e845b56ebc2a?pvs=73
+

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import declarative_base,relationship,DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy import Column,BigInteger,String,Text,TIMESTAMP,Integer,ForeignKey,Numeric,Date,Enum,DECIMAL,Boolean,UniqueConstraint,text
+from sqlalchemy import Column,BigInteger,String,Text,TIMESTAMP,Integer,ForeignKey,Numeric,Date,Enum,DECIMAL,Boolean,UniqueConstraint,text,Float
 from datetime import datetime,timedelta
 import enum
 from .defaults import DEFAULT_PROFILE_IMG,DEFAULT_PRODUCT_IMG
@@ -16,6 +16,10 @@ class orderstatus(enum.Enum):
     PENDING='pending'
     COMPLETED='completed'
     INPROGRESS='inprogress'
+    failed = "failed"
+    cancelled = "cancelled"
+    returned = "returned"
+    refunded = "refunded"
 
 #ORM will map database table to python classes and cols to class properties
 
@@ -27,7 +31,7 @@ class User(DecBase):
     email=Column(String(length=255),nullable=False,unique=True)
     password_hash=Column(String(length=300),nullable=False,unique=True)
     about=Column(Text,nullable=True)
-    avatar=Column(Text,nullable=False,server_default=text(f"'{DEFAULT_PROFILE_IMG}'")) #stores image url
+    avatar=Column(Text,nullable=False,default=DEFAULT_PROFILE_IMG,server_default=text(f"'{DEFAULT_PROFILE_IMG}'")) #stores image url
     created_at=Column(TIMESTAMP,nullable=False,default=datetime.now)
     deleted_at=Column(TIMESTAMP,nullable=True)
     updated_at=Column(TIMESTAMP,default=datetime.now,onupdate=datetime.now)
@@ -81,16 +85,16 @@ class Frosties(DecBase):
     user_id=Column(BigInteger,ForeignKey("users.id",ondelete="CASCADE")) 
     title=Column(String(600),nullable=False)
     description=Column(Text,nullable=True)
-    item_image=Column(Text,nullable=False,server_default=text(f"'{DEFAULT_PRODUCT_IMG}'"))
+    item_image=Column(Text,nullable=False,default=DEFAULT_PRODUCT_IMG,server_default=text(f"'{DEFAULT_PRODUCT_IMG}'"))
     qty=Column(Integer,nullable=False,default=1)
     created_at=Column(TIMESTAMP,nullable=False,default=datetime.now)
     updated_at=Column(TIMESTAMP,default=datetime.now,onupdate=datetime.now)
     price=Column(Numeric(20,2),nullable=True)
+    deleted_at=Column(TIMESTAMP,nullable=True)
 
     __table_args__ = (
         UniqueConstraint("user_id","title",name="unique_user_title"),
     )
-    #**likes count
 
 class likes(DecBase):
     __tablename__='likes'
@@ -103,13 +107,24 @@ class likes(DecBase):
         UniqueConstraint("user_id","frost_id",name="unique_user_like"),
     )
 
+#* keep payment_transaction_id in orders table , payment status and other payment details should go in other table as they are not order specific 
+#* each order should have a unique delivery address ,so a column of delivery address should be included in orders table .
+#* for simplicity only cod option is available . user places order -> order in progress -> make pay now avbl (when order is delivered or as the user wants)
 class orders(DecBase):
     __tablename__='orders'
     id=Column(BigInteger,primary_key=True,autoincrement=True)
     buyer_id=Column(BigInteger,ForeignKey("users.id",ondelete="CASCADE")) 
     created_at=Column(TIMESTAMP,nullable=False,default=datetime.now)
     status=Column(Enum(orderstatus),default=orderstatus.PENDING,nullable=False)
-    #**payment key 
+    delivered_at = Column(TIMESTAMP, nullable=True)
+    amount=Column(Float,nullable=True) # column added later so for simplicity just allowing nulls
+    payment_transaction_id=Column(String,nullable=True) 
+    payment_status=Column(String,nullable=True)  #* chnage it to enum type for production env
+    refund_transaction_id=Column(String,nullable=True)
+    refund_status=Column(String,nullable=True)
+    idempotency_key=Column(String,unique=True,nullable=True)
+    # pay_i_key=Column(String,unique=True,nullable=True)
+    
 
 class orderitems(DecBase):
     __tablename__='orderitems'

@@ -1,0 +1,21 @@
+# Ignore entire codebase
+**
+
+# Do not ignore `app` directory
+!src
+!src/**
+
+# !tests
+# !tests/**
+
+!.cursorignore
+!.cursorindexingignore
+!.gitignore
+
+!contexts
+!contexts/**
+
+!memory.md
+
+# Ignores logs directories in any directory
+**/logs
