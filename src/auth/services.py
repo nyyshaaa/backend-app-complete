@@ -19,7 +19,8 @@ class UserService:
         return res.first()
     
     async def get_user_details(self,user_id:int,session:AsyncSession):   
-        user=await session.get(User,user_id)  
+        user=await session.get(User,user_id) 
+        print(user) 
         return user
         # stmt=select(User).where(User.id==user_id)  
         # res=await session.execute(stmt)
