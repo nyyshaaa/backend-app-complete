@@ -16,7 +16,8 @@ export const options = {
 
 const API_ROOT  = 'http://127.0.0.1:8000/api/v1'; 
 // const CLOUD_URL = ''; // will be filled per-iteration
-const JWT       = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoiZnJvc3RAZHJlYW1lci5jb20iLCJ1c2VyX2lkIjo1MDA0N30sImV4cCI6MTc1MTI4NDQzOCwianRpIjoiOWExMjM2YWUtMmMwZi00YWViLWI1YzItYzQzNjUzZjYzZmIzIiwicmVmcmVzaCI6ZmFsc2V9.9RdaVZwbztf8i9xLU1VKf_yrR1mKRbGxt2G089GexbM';
+// Add token while testing
+const JWT       = 'Bearer ';
 // const FILE_PATH = './test-profile-avatar.jpg';
 
 export default function () {
