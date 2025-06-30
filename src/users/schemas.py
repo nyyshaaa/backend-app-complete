@@ -6,7 +6,7 @@ from datetime import datetime
 class UserProfileResponse(BaseModel):
     id:int    
     name:str
-    about:str
+    about:Optional[str]=None
     email:str
     avatar:str
     created_at:datetime
@@ -15,11 +15,11 @@ class UserPublicResponse(BaseModel):
     id:int    
     name:str
     email:str
-    about:str
+    about:Optional[str]=None
     avatar:str
 
 class UserUpdateRequest(BaseModel):
     name:str
-    about:str
+    about:Optional[str]=None
     email:str
     avatar:str

@@ -1,4 +1,4 @@
-from celery import celery
+from celery import Celery
 from PIL import Image
 import os,cloudinary.uploader
 

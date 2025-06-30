@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import  AsyncSession
 from src.db.dependencies import get_session
 from src.auth.dependencies import AccessTokenBearer
 from src.auth.services import UserService
-from src.users.schemas import UserProfileResponse,UserUpdateRequest
+from src.users.schemas import UserProfileResponse, UserPublicResponse,UserUpdateRequest
 from datetime import datetime
 from .utils import get_current_user, get_user_public_info
 
@@ -20,7 +20,7 @@ async def get_my_profile(jwt_token=Depends(AccessTokenBearer()), db_session:Asyn
     token_user_id=jwt_token["user"]["user_id"]
     return await get_current_user(token_user_id,db_session)
 
-@profile_router.get("/{user_id}",response_model=UserProfileResponse)
+@profile_router.get("/{user_id}",response_model=UserPublicResponse)
 async def get_profile(user_id:int, db_session:AsyncSession=Depends(get_session)):
 
     return await get_user_public_info(user_id,db_session)

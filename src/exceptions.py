@@ -108,7 +108,7 @@ def create_exception_handler(detail_fn:DetailFn):
 async def fallback_handler(request: Request, exc: Exception):
     
     body = {
-        "message": getattr(exc, "detail", "Internal server error"),
+        "message": getattr(exc, "detail", "Internal Server Error"),
         "error_type": type(exc).__name__
     }
     code = getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR)
