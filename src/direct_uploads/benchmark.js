@@ -12,7 +12,7 @@ export const options = {
     'http_req_duration{step:signature}': ['p(90)<200'],
     'http_req_duration{step:upload}': ['p(90)<1000'],
   },
-};
+}; 
 
 const API_ROOT  = 'http://127.0.0.1:8000/api/v1'; 
 // const CLOUD_URL = ''; // will be filled per-iteration
