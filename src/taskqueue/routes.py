@@ -1,23 +1,41 @@
-from fastapi import APIRouter,HTTPException,Depends,status,UploadFile,File
+from fastapi import APIRouter,HTTPException,Depends,status,UploadFile,File,BackgroundTasks
 from src.auth.dependencies import AccessTokenBearer
-import uuid , shutil
-from .utils import process_image_task
+import itertools,uuid
+
+from src.taskqueue.schema import EnqueueResponse 
+from .utils import process_and_upload
+
+from .constants import images_store
 
 
-upload_router=APIRouter()
+queue_uploads_router=APIRouter()
 
-@upload_router.post("/image")
-async def upload_image(file:UploadFile=File(...),jwt_token:dict=Depends(AccessTokenBearer())):
+
+upload_counter=itertools.count(1)
+
+
+
+@queue_uploads_router.post("/",response_model=EnqueueResponse)
+async def upload_via_server(background_tasks:BackgroundTasks,file:UploadFile=File(...),jwt_token:dict=Depends(AccessTokenBearer())):
     user_id=jwt_token["user"]["user_id"]
-    print(user_id)
-    temp_filename=f"/tmp/{uuid.uuid4()}_{file.filename}" #To ensure uniqueness across file names attach uuid.
+    
+    #1. Generate upload id
+    upload_id=next(upload_counter)
+ 
+    #2. Update status in db to pending and secure url as None
+    images_store[upload_id]={"status":"pending","secure_url":None}
 
-    with open(temp_filename,"wb") as buffer:
-        shutil.cop(file.file,buffer)
+    #3. Read bytes and enqueue task to process image
+    read_file=await file.read()
+    background_tasks.add_task(
+        process_and_upload,
+        upload_id,
+        read_file,
+        file.filename,
+        user_id
+    )
 
-    #Enqueue background task : pass temp file path and user_id
-    process_image_task.delay(temp_filename,user_id)
-    return {"status":"processing","message":"Your image is being processed."}
+    return EnqueueResponse(upload_id=upload_id)
 
 
 

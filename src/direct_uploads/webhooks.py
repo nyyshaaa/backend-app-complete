@@ -13,9 +13,11 @@ demo_store = {}                    # upload_id → {"status": "...", "secure_url
 upload_counter = itertools.count(1)
 
 
-# not actually using this file for now . as benchmarking is done to test upload flow.
+# not actually using this file for now . as benchmarking is only done to test upload flow.
 
 
+
+# register webhook callback url in cloudinary dashboard.
 @direct_uploads_router.post("/webhook/cloudinary")
 async def cloudinary_webhook(request: Request):
     """

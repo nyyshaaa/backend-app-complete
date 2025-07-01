@@ -1,9 +1,8 @@
 import http from 'k6/http';
 import { check, group, sleep } from 'k6';
-import { parseHTML } from 'k6/html';
 
 // Open the file in the init stage (global scope)
-const testFile = open('./test-profile-avatar.jpeg', 'image/jpeg');
+const testFile = open('src/assets/test-profile-avatar.jpeg', 'image/jpeg');
 
 export const options = {
   vus: 10,            // virtual users
