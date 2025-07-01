@@ -15,7 +15,7 @@ export const options = {
 const API_ROOT  = 'http://127.0.0.1:8000/api/v1'; 
 
 // Add token while testing
-const JWT = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoiZnJvc3RAZHJlYW1lci5jb20iLCJ1c2VyX2lkIjo1MDA0N30sImV4cCI6MTc1MTM5MTM5OSwianRpIjoiOTE2NTE0YTEtZjdlYy00MjE3LTkxZmQtYzRhZmQxNTg5Y2QwIiwicmVmcmVzaCI6ZmFsc2V9.Ymd7rVa80hy7RnO86hxfRnCvJ04DN3urR8fVwxOdgtI';
+const JWT = 'Bearer ';
 
 
 export default function () {
