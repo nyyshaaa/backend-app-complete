@@ -17,6 +17,9 @@ class Settings(BaseSettings):
 
 configSettgs=Settings()
 
+#Baseettings autmatically loads environment variables
+#configSettgs object will read environment variables
+
 
 class CloudinarySettings(BaseSettings):
     CLOUDINARY_API_KEY:str
@@ -31,7 +34,8 @@ class CloudinarySettings(BaseSettings):
     )
 
 cloudinary_config=CloudinarySettings()
+
+
+
     
 
-#Baseettings autmatically loads environment variables
-#configSettgs object will read environment variables
