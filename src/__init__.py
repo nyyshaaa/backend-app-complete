@@ -10,7 +10,7 @@ from src.payments.routes import webhook_router
 from prometheus_fastapi_instrumentator import Instrumentator
 from src.exceptions import register_exceptions
 
-from src.taskqueue.routes import queue_uploads_router
+from src.via_server.routes import server_uploads_router
 
 version="v1"
 
@@ -37,7 +37,7 @@ app=FastAPI(
 register_exceptions(app)
 
 app.include_router(auth_router,prefix=f"{version_prefix}/auth",tags=["auth"])
-app.include_router(queue_uploads_router,prefix=f"{version_prefix}/uploads-queue",tags=["uploads-queue"])
+app.include_router(server_uploads_router,prefix=f"{version_prefix}/uploads-queue",tags=["uploads-queue"])
 app.include_router(profile_router,prefix=f"{version_prefix}/profile",tags=["profile"])
 app.include_router(frosties_router,prefix=f"{version_prefix}/frosties",tags=["frosties"])
 app.include_router(orders_router,prefix=f"{version_prefix}/orders",tags=["orders"])

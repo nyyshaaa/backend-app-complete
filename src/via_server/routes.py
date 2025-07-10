@@ -3,20 +3,20 @@ from fastapi import APIRouter,HTTPException,Depends,status,UploadFile,File,Backg
 from src.auth.dependencies import AccessTokenBearer
 import itertools,uuid
 import cloudinary.uploader as cloudinary_uploader
-from src.taskqueue.schema import EnqueueResponse,UploadStatus
+from src.via_server.schema import EnqueueResponse,UploadStatus
 # from .utils import process_and_upload
 
 from .constants import images_store
 
 
-queue_uploads_router=APIRouter()
+server_uploads_router=APIRouter()
 
 
 upload_counter=itertools.count(1)
 
 
 
-@queue_uploads_router.post("/")
+@server_uploads_router.post("/")
 async def upload_via_server(background_tasks:BackgroundTasks,file:UploadFile=File(...)):
     
     #1. Generate upload id
@@ -45,7 +45,7 @@ async def upload_via_server(background_tasks:BackgroundTasks,file:UploadFile=Fil
     # return EnqueueResponse(upload_id=upload_id)
 
 
-@queue_uploads_router.get("/upload-status/{upload_id}", response_model=UploadStatus)
+@server_uploads_router.get("/upload-status/{upload_id}", response_model=UploadStatus)
 async def get_upload_status(upload_id: int):
     """
     Poll this to check if the background task has finished uploading.
