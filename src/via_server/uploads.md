@@ -13,10 +13,11 @@ API latency depends on:
 ## 2. Signature Request vs. File Upload
 
 ### Direct-to-Cloudinary (Pattern 1):
-- **Step 1:** Client requests a signature from your server (small, fast request).
-- **Step 2:** Client uploads the file directly to Cloudinary (large, slow request, but only one network hop for the file).
+- **Step 1:** Client requests a signature from your server and server to cloudinary(small, fast request).
+- **Step 2:** Client uploads the file directly to Cloudinary (large, slow request, but only one network hop for the file) with few necessary transformations.
 - The signature request is fast because it's just a small JSON payload (no file data).
 - The file upload is fast because it goes directly from client to Cloudinary, skipping your server.
+
 
 ### Via Server (Pattern 2):
 - **Step 1:** Client uploads the file to your server (large, slow request).
@@ -25,6 +26,11 @@ API latency depends on:
   - First from client to your server.
   - Then from your server to Cloudinary.
 - This always adds extra latency compared to direct upload.
+
+
+# To be implemented in both patterns ---
+- Cloudinary sends a webhook to server asynchronously 
+- In the webhook update status in db and enqueue task for further extra heavy image processing (extra image processing happens in seprate thread)
 
 ---
 

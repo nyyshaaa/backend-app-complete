@@ -1,7 +1,7 @@
 from celery import Celery
 import cloudinary.uploader as cloudinary_uploader
 
-from src.taskqueue.constants import images_store
+from src.via_server.constants import images_store
 
 # async def process_and_upload(upload_id,image_bytes,filename,user_id):
 
